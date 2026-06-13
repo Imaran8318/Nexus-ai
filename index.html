@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NexusAI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--surface:#161922;--panel:#1c1f2b;--border:#272b38;--accent:#7c6af7;--accent2:#5edfc8;--text:#e8eaf0;--muted:#7a7f94;--danger:#f87171;--success:#34d399}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;overflow:hidden}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-6px);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+#auth{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.acard{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px}
+.alogo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px}
+.amark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:grid;place-items:center;font-size:17px}
+.abrand{font-size:19px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.atitle{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px}
+.asub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:22px}
+.atabs{display:flex;background:var(--panel);border-radius:9px;padding:3px;margin-bottom:20px}
+.atab{flex:1;padding:8px;background:none;border:none;border-radius:7px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer}
+.atab.on{background:var(--surface);color:var(--text)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px}
+.field input{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13.5px;color:var(--text);outline:none}
+.field input:focus{border-color:var(--accent)}
+.field input::placeholder{color:var(--muted)}
+.hint{font-size:11px;color:var(--danger);margin-top:4px;display:none}
+.hint.on{display:block}
+.gbtn{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:13.5px;font-weight:500;color:var(--text);cursor:pointer;margin-bottom:14px}
+.divider{display:flex;align-items:center;gap:8px;margin:14px 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.asbtn{width:100%;background:linear-gradient(135deg,var(--accent),#5a50cc);border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:4px}
+.afoot{text-align:center;margin-top:16px;font-size:12px;color:var(--muted)}
+.afoot a{color:var(--accent);cursor:pointer}
+#app{display:none;flex:1;overflow:hidden}
+#app.on{display:flex}
+#sidebar{width:250px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.shead{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.smark{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:grid;place-items:center;font-size:14px}
+.sbrand{font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ncbtn{margin:10px;padding:9px 13px;background:linear-gradient(135deg,var(--accent),#5a50cc);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px}
+.hist{flex:1;overflow-y:auto;padding:4px 7px}
+.hitem{padding:8px 9px;border-radius:8px;font-size:12.5px;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hitem:hover,.hitem.on{background:var(--panel);color:var(--text)}
+.sfoot{padding:10px;border-top:1px solid var(--border)}
+.ucard{display:flex;align-items:center;gap:9px;padding:7px;border-radius:8px;cursor:pointer;position:relative}
+.ucard:hover{background:var(--panel)}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;flex-shrink:0}
+.uname{font-size:12.5px;font-weight:500}
+.uplan{font-size:11px;color:var(--muted)}
+.umenu{position:absolute;bottom:48px;left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:4px;display:none;z-index:10}
+.umenu.on{display:block}
+.umitem{padding:8px 11px;border-radius:7px;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.umitem:hover{background:var(--border);color:var(--text)}
+.umitem.red{color:var(--danger)}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{padding:11px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.msel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:13px;color:var(--text);cursor:pointer;appearance:none}
+.ibtn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:7px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+#msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+#welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:30px 20px}
+.wicon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;display:grid;place-items:center;font-size:26px}
+.wtitle{font-size:26px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wsub{color:var(--muted);font-size:14px;max-width:320px;line-height:1.6}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;max-width:500px}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px 14px;cursor:pointer;text-align:left}
+.scard:hover{border-color:var(--accent);background:var(--panel)}
+.scard .si{font-size:17px;margin-bottom:5px}
+.scard .st{font-size:12.5px;font-weight:500}
+.scard .ss{font-size:11px;color:var(--muted);margin-top:2px}
+.msg{display:flex;gap:11px;max-width:760px;width:100%;margin:0 auto}
+.msg.user{flex-direction:row-reverse}
+.mav{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:12px;font-weight:600;margin-top:2px}
+.mav.ai{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.mbody{flex:1}
+.mname{font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.msg.user .mname{text-align:right}
+.mbub{padding:11px 14px;border-radius:13px;font-size:14px;line-height:1.7;display:inline-block;max-width:100%}
+.msg.ai .mbub{background:var(--surface);border:1px solid var(--border);border-radius:4px 13px 13px 13px}
+.msg.user .mbub{background:var(--accent);color:#fff;border-radius:13px 4px 13px 13px}
+.mbub pre{background:#0a0c11;border:1px solid var(--border);border-radius:7px;padding:11px 13px;font-family:monospace;font-size:12.5px;overflow-x:auto;margin:9px 0}
+.mbub code:not(pre code){background:rgba(124,106,247,.18);color:var(--accent2);padding:2px 5px;border-radius:3px;font-family:monospace;font-size:12.5px}
+.mbub p{margin:5px 0}
+.mbub ul{padding-left:18px;margin:5px 0}
+.mbub li{margin:3px 0}
+.mbub strong{font-weight:600}
+.macts{display:flex;gap:3px;margin-top:5px;opacity:0}
+.msg:hover .macts{opacity:1}
+.msg.user .macts{justify-content:flex-end}
+.abtn{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 7px;color:var(--muted);font-size:11px;cursor:pointer}
+.dots{display:flex;gap:4px;align-items:center}
+.dots span{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:bounce 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+#paywall{background:linear-gradient(90deg,rgba(124,106,247,.12),rgba(94,223,200,.08));border:1px solid rgba(124,106,247,.3);border-radius:11px;padding:11px 14px;display:none;align-items:center;justify-content:space-between;gap:11px;margin:0 18px 10px;flex-shrink:0}
+#paywall.on{display:flex}
+.pwt{font-size:13px;font-weight:600}
+.pws{font-size:11.5px;color:var(--muted)}
+.pwbtn{background:linear-gradient(135deg,var(--accent),#5a50cc);border:none;border-radius:7px;padding:7px 14px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer}
+#iarea{padding:14px 18px 18px;background:var(--bg);border-top:1px solid var(--border)}
+.iwrap{max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:13px;display:flex;align-items:flex-end;gap:7px;padding:9px 11px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.iwrap:focus-within{border-color:var(--accent)}
+#cinput{flex:1;background:none;border:none;resize:none;font-family:'Segoe UI',sans-serif;font-size:14px;color:var(--text);line-height:1.5;max-height:160px;min-height:22px;outline:none;overflow-y:auto;padding:2px 0}
+#cinput::placeholder{color:var(--muted)}
+#sendbtn{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#5a50cc);border:none;border-radius:8px;display:grid;place-items:center;cursor:pointer;color:#fff;flex-shrink:0}
+#sendbtn:disabled{opacity:.35;cursor:not-allowed}
+.ifoot{text-align:center;font-size:11px;color:var(--muted);margin-top:7px}
+.mbk{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.25s}
+.mbk.on{opacity:1;pointer-events:all}
+.pmod{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:18px;max-height:92dvh;overflow-y:auto;transform:translateY(20px);transition:.28s}
+.mbk.on .pmod{transform:none}
+.phead{padding:22px 22px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.pbadge{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--accent2);background:rgba(94,223,200,.12);border:1px solid rgba(94,223,200,.25);border-radius:20px;padding:3px 9px;display:inline-block;margin-bottom:9px}
+.ph2{font-size:18px;font-weight:700;margin-bottom:3px}
+.ph3{font-size:12.5px;color:var(--muted)}
+.mcls{background:var(--panel);border:1px solid var(--border);border-radius:7px;width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:var(--muted);margin-left:10px}
+.plans{display:flex;gap:9px;padding:16px 22px 0}
+.plan{flex:1;border:2px solid var(--border);border-radius:11px;padding:13px 11px;cursor:pointer;text-align:center;position:relative}
+.plan.on{border-color:var(--accent);background:rgba(124,106,247,.08)}
+.pname{font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
+.pprice{font-size:20px;font-weight:700}
+.pprice span{font-size:12px;color:var(--muted)}
+.psave{font-size:10px;color:var(--accent2);font-weight:600;margin-top:2px}
+.pbest{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-size:9.5px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap}
+.feats{padding:12px 22px 0;display:flex;gap:7px;flex-wrap:wrap}
+.feat{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11.5px;color:var(--text)}
+.pdiv{height:1px;background:var(--border);margin:16px 22px 0}
+.pmethods{padding:14px 22px 0}
+.pmlbl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--muted);margin-bottom:11px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px}
+.meth{border:2px solid var(--border);border-radius:10px;padding:11px 9px;background:var(--panel);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.meth.on{border-color:var(--accent);background:rgba(124,106,247,.08)}
+.mico{font-size:20px}
+.mlbl{font-size:11.5px;font-weight:500}
+.msub{font-size:10px;color:var(--muted)}
+.pinp{padding:11px 22px 0}
+.pbwrap{padding:16px 22px 22px}
+.paybtn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#5a50cc);border:none;border-radius:11px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
+.paybtn:disabled{opacity:.4;cursor:not-allowed}
+.psec{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.psuccess{padding:36px 22px;text-align:center;display:none;flex-direction:column;align-items:center;gap:12px}
+.psuccess.on{display:flex}
+.pring{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--success),#059669);display:grid;place-items:center;font-size:28px}
+.ps2{font-size:18px;font-weight:700}
+.ps3{color:var(--muted);font-size:13.5px;line-height:1.6;max-width:260px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:9px 16px;font-size:13px;color:var(--text);opacity:0;transition:.25s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--success);color:var(--success)}
+@media(max-width:640px){#sidebar{position:fixed;left:0;top:0;height:100%;z-index:100;transform:translateX(-100%);transition:.3s}#sidebar.on{transform:translateX(0)}#mtog{display:grid!important}.sgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="auth"><div class="acard"><div class="alogo"><div class="amark">✦</div><span class="abrand">NexusAI</span></div><div id="vlogin"><div class="atitle">Welcome back</div><div class="asub">Sign in to continue</div><div class="atabs"><button class="atab on" onclick="stab('login')">Sign in</button><button class="atab" onclick="stab('signup')">Create account</button></div><button class="gbtn" onclick="gLogin()">G Continue with Google</button><div class="divider">or</div><div class="field"><label>Email</label><input type="email" id="le" placeholder="you@example.com"/><div class="hint" id="leh"></div></div><div class="field"><label>Password</label><input type="password" id="lp" placeholder="Your password"/><div class="hint" id="lph"></div></div><button class="asbtn" onclick="doLogin()">Sign in to NexusAI</button><div class="afoot">No account? <a onclick="stab('signup')">Create one free</a></div></div><div id="vsignup" style="display:none"><div class="atitle">Create account</div><div class="asub">Start chatting for free</div><div class="atabs"><button class="atab" onclick="stab('login')">Sign in</button><button class="atab on" onclick="stab('signup')">Create account</button></div><button class="gbtn" onclick="gLogin()">G Continue with Google</button><div class="divider">or</div><div class="field"><label>Full name</label><input type="text" id="sn" placeholder="Your name"/><div class="hint" id="snh"></div></div><div class="field"><label>Email</label><input type="email" id="se" placeholder="you@example.com"/><div class="hint" id="seh"></div></div><div class="field"><label>Password</label><input type="password" id="sp" placeholder="At least 8 characters"/><div class="hint" id="sph"></div></div><button class="asbtn" onclick="doSignup()">Create free account</button><div class="afoot">Have an account? <a onclick="stab('login')">Sign in</a></div></div></div></div>
+<div id="toast"></div>
+<div class="mbk" id="mbk" onclick="bkclick(event)"><div class="pmod"><div class="psuccess" id="psuc"><div class="pring">✓</div><div class="ps2">Payment successful!</div><div class="ps3">Welcome to NexusAI Pro.</div><button class="paybtn" style="max-width:180px" onclick="closePay()">Start chatting ✦</button></div><div id="pmain"><div class="phead"><div><div class="pbadge">✦ Upgrade to Pro</div><div class="ph2">Unlock unlimited access</div><div class="ph3">Remove free limit · Priority AI</div></div><button class="mcls" onclick="closePay()">✕</button></div><div class="plans"><div class="plan on" id="pm" onclick="selPlan('m')"><div class="pname">Monthly</div><div class="pprice">₹199<span>/mo</span></div></div><div class="plan" id="py" onclick="selPlan('y')"><div class="pbest">Best value</div><div class="pname">Yearly</div><div class="pprice">₹99<span>/mo</span></div><div class="psave">Save ₹1200/yr</div></div></div><div class="feats"><div class="feat">✓ Unlimited messages</div><div class="feat">✓ Priority responses</div><div class="feat">✓ All models</div></div><div class="pdiv"></div><div class="pmethods"><div class="pmlbl">Payment method</div><div class="mgrid"><button class="meth on" onclick="selMeth('gpay',this)"><div class="mico">📱</div><div class="mlbl">Google Pay</div><div class="msub">UPI instant</div></button><button class="meth" onclick="selMeth('phonepe',this)"><div class="mico">💜</div><div class="mlbl">PhonePe</div><div class="msub">UPI instant</div></button><button class="meth" onclick="selMeth('paytm',this)"><div class="mico">🔵</div><div class="mlbl">Paytm</div><div class="msub">Wallet+UPI</div></button><button class="meth" onclick="selMeth('upi',this)"><div class="mico">⚡</div><div class="mlbl">UPI ID</div><div class="msub">Any app</div></button><button class="meth" onclick="selMeth('card',this)"><div class="mico">💳</div><div class="mlbl">Card</div><div class="msub">Debit/Credit</div></button><button class="meth" onclick="selMeth('nb',this)"><div class="mico">🏦</div><div class="mlbl">Net Banking</div><div class="msub">All banks</div></button></div><div class="pinp" id="pinp"><p style="text-align:center;padding:13px;background:var(--panel);border-radius:9px;font-size:13px">📱 Open Google Pay on your phone</p></div></div><div class="pbwrap"><button class="paybtn" id="paybtn" onclick="doPay()">💳 Pay ₹199 · Nexus Pro</button><div class="psec">🔒 256-bit SSL encryption</div></div></div></div></div>
+<div id="app"><aside id="sidebar"><div class="shead"><div class="smark">✦</div><span class="sbrand">NexusAI</span></div><button class="ncbtn" onclick="newChat()">＋ New conversation</button><div class="hist" id="hist"></div><div class="sfoot"><div class="umenu" id="umenu"><div class="umitem red" onclick="logout()">⬡ Sign out</div></div><div class="ucard" onclick="toggleMenu()"><div class="av" id="uav">IK</div><div><div class="uname" id="uname">User</div><div class="uplan" id="uplan">Free plan</div></div></div></div></aside><main id="main"><div id="topbar"><div style="display:flex;align-items:center;gap:9px"><button class="ibtn" id="mtog" style="display:none" onclick="document.getElementById('sidebar').classList.toggle('on')">☰</button><select class="msel"><option>✦ Nexus Pro</option><option>⚡ Nexus Fast</option><option>🧠 Nexus Think</option></select></div><button class="ibtn" onclick="toast('🔗 Link copied!','ok')">⬆</button></div><div id="msgs"><div id="welcome"><div class="wicon">✦</div><div class="wtitle" id="wtitle">What can I help with?</div><div class="wsub">Your intelligent AI assistant.</div><div class="sgrid"><div class="scard" onclick="suggest('Explain how AI transformers work')"><div class="si">🧠</div><div class="st">Explain transformers</div><div class="ss">How attention works in AI</div></div><div class="scard" onclick="suggest('Write a Python sorting script')"><div class="si">💻</div><div class="st">Write Python code</div><div class="ss">Generate or debug code</div></div><div class="scard" onclick="suggest('Carnot vs Rankine cycle?')"><div class="si">⚙️</div><div class="st">Engineering</div><div class="ss">Thermodynamics & mechanics</div></div><div class="scard" oncli
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <script>
+const UK='nai_u',SK='nai_s',PK='nai_p',MK='nai_m';
+const FREE=5;
+function getU(){try{return JSON.parse(localStorage.getItem(UK))||{}}catch{return{}}}
+function saveU(u){localStorage.setItem(UK,JSON.stringify(u))}
+function getS(){try{return JSON.parse(localStorage.getItem(SK))}catch{return null}}
+function saveS(s){localStorage.setItem(SK,JSON.stringify(s))}
+function isPro(){return localStorage.getItem(PK)==='1'}
+function getMC(){return parseInt(localStorage.getItem(MK)||'0')}
+function incMC(){localStorage.setItem(MK,getMC()+1)}
+function actPro(){localStorage.setItem(PK,'1')}
+function hash(p){let h=0;for(let c of p)h=(Math.imul(31,h)+c.charCodeAt(0))|0;return h.toString(36)}
+function ini(n){return n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+function avc(n){const c=[['#f97316','#ec4899'],['#7c6af7','#5edfc8'],['#06b6d4','#6366f1'],['#10b981','#3b82f6']];let h=0;for(let x of n)h=(h*31+x.charCodeAt(0))|0;const[a,b]=c[Math.abs(h)%c.length];return`linear-gradient(135deg,${a},${b})`}
+function isEm(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
+let toastT;
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='on '+(type||'');clearTimeout(toastT);toastT=setTimeout(()=>t.className='',2800)}
+function stab(tab){document.getElementById('vlogin').style.display=tab==='login'?'':'none';document.getElementById('vsignup').style.display=tab==='signup'?'':'none'}
+function doLogin(){
+  const e=document.getElementById('le').value.trim();
+  const p=document.getElementById('lp').value;
+  document.getElementById('leh').className='hint';
+  document.getElementById('lph').className='hint';
+  if(!e||!isEm(e)){document.getElementById('leh').textContent='Enter a valid email';document.getElementById('leh').className='hint on';return}
+  if(!p){document.getElementById('lph').textContent='Enter your password';document.getElementById('lph').className='hint on';return}
+  const u=getU();
+  if(!u[e]||u[e].password!==hash(p)){document.getElementById('leh').textContent='Email or password incorrect';document.getElementById('leh').className='hint on';return}
+  saveS({email:e,name:u[e].name});enterApp(u[e].name);
+}
+function doSignup(){
+  const n=document.getElementById('sn').value.trim();
+  const e=document.getElementById('se').value.trim();
+  const p=document.getElementById('sp').value;
+  ['snh','seh','sph'].forEach(id=>document.getElementById(id).className='hint');
+  let ok=true;
+  if(!n||n.length<2){document.getElementById('snh').textContent='Enter your name';document.getElementById('snh').className='hint on';ok=false}
+  if(!e||!isEm(e)){document.getElementById('seh').textContent='Enter a valid email';document.getElementById('seh').className='hint on';ok=false}
+  if(p.length<8){document.getElementById('sph').textContent='At least 8 characters';document.getElementById('sph').className='hint on';ok=false}
+  if(!ok)return;
+  const u=getU();
+  if(u[e]){document.getElementById('seh').textContent='Account already exists';document.getElementById('seh').className='hint on';return}
+  u[e]={name:n,password:hash(p)};saveU(u);saveS({email:e,name:n});
+  toast('🎉 Account created!','ok');setTimeout(()=>enterApp(n),500);
+}
+function gLogin(){const name='Google User',email='google@demo.com';const u=getU();if(!u[email])u[email]={name,password:''};saveU(u);saveS({email,name});toast('✓ Signed in with Google','ok');setTimeout(()=>enterApp(name),500)}
+function enterApp(name){
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').classList.add('on');
+  document.getElementById('uav').textContent=ini(name);
+  document.getElementById('uav').style.background=avc(name);
+  document.getElementById('uname').textContent=name;
+  document.getElementById('uplan').textContent=isPro()?'Pro plan ✦':'Free plan';
+  document.getElementById('wtitle').textContent=`Hi ${name.split(' ')[0]}, what can I help with?`;
+  newChat();
+}
+function logout(){localStorage.removeItem(SK);location.reload()}
+function toggleMenu(){document.getElementById('umenu').classList.toggle('on')}
+document.addEventListener('click',e=>{if(!e.target.closest('.ucard')&&!e.target.closest('.umenu'))document.getElementById('umenu')?.classList.remove('on')});
+let convs=[],cur=null,busy=false;
+const msgsEl=document.getElementById('msgs');
+const inp=document.getElementById('cinput');
+const sbtn=document.getElementById('sendbtn');
+inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,160)+'px';sbtn.disabled=!inp.value.trim()||busy});
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sbtn.disabled)send()}});
+function newChat(){cur={id:Date.now(),title:'New conversation',msgs:[]};convs.unshift(cur);renderH();showW();document.getElementById('sidebar').classList.remove('on')}
+function showW(){const name=document.getElementById('uname').textContent;const fn=name.split(' ')[0];msgsEl.innerHTML=`<div id="welcome"><div class="wicon">✦</div><div class="wtitle">Hi ${fn}, what can I help with?</div><div class="wsub">Your intelligent AI assistant.</div><div class="sgrid"><div class="scard" onclick="suggest('Explain how AI transformers work')"><div class="si">🧠</div><div class="st">Explain transformers</div><div class="ss">How attention works</div></div><div class="scard" onclick="suggest('Write a Python sorting script')"><div class="si">💻</div><div class="st">Write Python code</div><div class="ss">Generate or debug code</div></div><div class="scard" onclick="suggest('Carnot vs Rankine cycle?')"><div class="si">⚙️</div><div class="st">Engineering</div><div class="ss">Thermodynamics & mechanics</div></div><div class="scard" onclick="suggest('Help me plan GATE ME study schedule')"><div class="si">📚</div><div class="st">Study planning</div><div class="ss">Build a revision roadmap</div></div></div></div>`}
+function renderH(){document.getElementById('hist').innerHTML=convs.map(c=>`<div class="hitem ${cur&&c.id===cur.id?'on':''}" onclick="loadConv(${c.id})">💬 ${esc(c.title)}</div>`).join('')}
+function loadConv(id){cur=convs.find(c=>c.id===id);renderH();if(!cur.msgs.length){showW();return}msgsEl.innerHTML='';cur.msgs.forEach(m=>addMsg(m.role,m.content,false));document.getElementById('sidebar').classList.remove('on')}
+function suggest(text){inp.value=text;inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,160)+'px';sbtn.disabled=false;inp.focus()}
+async function send(){
+  const text=inp.value.trim();
+  if(!text||busy)return;
+  if(!isPro()){if(getMC()>=FREE){document.getElementById('paywall').classList.add('on');return}incMC();const left=FREE-getMC();if(left<=2&&left>0)toast(`⚠️ ${left} free message${left===1?'':'s'} left`)}
+  if(!cur){cur={id:Date.now(),title:text.slice(0,40),msgs:[]};convs.unshift(cur);renderH()}
+  else if(!cur.msgs.length){cur.title=text.slice(0,40);renderH()}
+  document.getElementById('welcome')?.remove();
+  inp.value='';inp.style.height='auto';sbtn.disabled=true;busy=true;
+  cur.msgs.push({role:'user',content:text});addMsg('user',text);
+  const tid='t'+Date.now();addTyping(tid);
+  const uname=document.getElementById('uname').textContent;
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:`You are NexusAI, a smart AI assistant. User's name is ${uname}. Format code in triple backticks.`,messages:cur.msgs.map(m=>({role:m.role,content:m.content}))})});
+    const d=await r.json();
+    const reply=d.content?.[0]?.text||'Sorry, could not generate a response.';
+    document.getElementById(tid)?.remove();
+    cur.msgs.push({role:'assistant',content:reply});addMsg('assistant',reply);
+  }catch{
+    document.getElementById(tid)?.remove();
+    addMsg('assistant','Network error — check your connection.');
+  }
+  busy=false;sbtn.disabled=!inp.value.trim();
+}
+function addTyping(id){const el=document.createElement('div');el.className='msg ai';el.id=id;el.innerHTML=`<div class="mav ai">✦</div><div class="mbody"><div class="mname">NexusAI</div><div class="mbub"><div class="dots"><span></span><span></span><span></span></div></div></div>`;msgsEl.appendChild(el);msgsEl.scrollTop=msgsEl.scrollHeight}
+function addMsg(role,content,scroll=true){const isAI=role==='assistant';const el=document.createElement('div');el.className=`msg ${isAI?'ai':'user'}`;const name=document.getElementById('uname').textContent;el.innerHTML=`<div class="mav ${isAI?'ai':''}" style="${isAI?'':'background:'+avc(name)}">${isAI?'✦':ini(name)}</div><div class="mbody"><div class="mname">${isAI?'NexusAI':'You'}</div><div class="mbub">${fmt(content)}</div><div class="macts">${isAI?'<button class="abtn" onclick="cpMsg(this)">Copy</button>':''}<button class="abtn">👍</button><button class="abtn">👎</button></div></div>`;msgsEl.appendChild(el);if(scroll)msgsEl.scrollTop=msgsEl.scrollHeight}
+function fmt(t){t=t.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre><code>${esc(c.trim())}</code></pre>`);t=t.replace(/`([^`]+)`/g,'<code>$1</code>');t=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');t=t.replace(/^[*-] (.+)/gm,'<li>$1</li>');t=t.replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');t=t.replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');return`<p>${t}</p>`}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cpMsg(btn){navigator.clipboard.writeText(btn.closest('.mbody').querySelector('.mbub').innerText).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='Copy',2000)})}
+function openPay(){document.getElementById('mbk').classList.add('on');document.getElementById('psuc').style.display='none';document.getElementById('pmain').style.display=''}
+function closePay(){document.getElementById('mbk').classList.remove('on')}
+function bkclick(e){if(e.target===document.getElementById('mbk'))closePay()}
+function selPlan(p){document.getElementById('pm').classList.toggle('on',p==='m');document.getElementById('py').classList.toggle('on',p==='y');document.getElementById('paybtn').textContent=`💳 Pay ${p==='m'?'₹199':'₹1,188'} · Nexus Pro`}
+function selMeth(m,btn){document.querySelectorAll('.meth').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const h={gpay:'📱 Open Google Pay on your phone',phonepe:'📱 Open PhonePe on your phone',paytm:'📱 Open Paytm on your phone',upi:'<input type="text" placeholder="Enter UPI ID e.g. name@okaxis" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:13px;color:var(--text);outline:none"/>',card:'<input type="text" placeholder="Card number" style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:13px;color:var(--text);outline:none;margin-bottom:8px"/><div style="display:flex;gap:8px"><input type="text" placeholder="MM/YY" style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:13px;color:var(--text);outline:none"/><input type="text" placeholder="CVV" style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:13px;color:var(--text);outline:none"/></div>',nb:'<select style="width:100%;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:13px;color:var(--text);outline:none"><option>Select bank</option><option>SBI</option><option>HDFC Bank</option><option>ICICI Bank</option><option>Axis Bank</option><option>Kotak Bank</option><option>PNB</option></select>'};document.getElementById('pinp').innerHTML=`<div style="background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:13px;text-align:center;font-size:13px">${h[m]||''}</div>`}
+async function doPay(){const btn=document.getElementById('paybtn');btn.disabled=true;btn.innerHTML='⏳ Processing…';await new Promise(r=>setTimeout(r,2000));actPro();localStorage.removeItem(MK);document.getElementById('pmain').style.display='none';document.getElementById('psuc').style.display='flex';document.getElementById('paywall').classList.remove('on');document.getElementById('uplan').textContent='Pro plan ✦';toast('🎉 Nexus Pro activated!','ok')}
+window.addEventListener('DOMContentLoaded',()=>{const s=getS();if(s)enterApp(s.name)});
+</script>
+</body>
+</html>
